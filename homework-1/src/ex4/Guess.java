@@ -4,12 +4,6 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class Guess {
-    static String getWord(int i) {
-        if (i == 1) return "попытка";
-        if (i < 5) return "попытки";
-        else return "попыток";
-    }
-
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         int quantity = 10;
@@ -29,5 +23,11 @@ public class Guess {
                 break;
             }
         }
+    }
+
+    static String getWord(int i) {
+        if (i == 1) return "попытка";
+        if (i < 5) return "попытки";
+        else return "попыток";
     }
 }

@@ -3,6 +3,12 @@ package ex2;
 import java.util.Scanner;
 
 public class Pell {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int n = scanner.nextInt();
+        System.out.println(getPell(n));
+    }
+
     static long getPell(int n) {
         if (0 <= n && n <= 1) return n;
         long num1 = 0;
@@ -13,11 +19,5 @@ public class Pell {
             num1 = tmp;
         }
         return num2;
-    }
-
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        int n = scanner.nextInt();
-        System.out.println(getPell(n));
     }
 }
