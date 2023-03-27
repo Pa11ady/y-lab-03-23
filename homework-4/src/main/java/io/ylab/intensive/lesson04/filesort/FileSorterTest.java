@@ -12,7 +12,10 @@ public class FileSorterTest {
     DataSource dataSource = initDb();
     File data = new File("data.txt");
     FileSorter fileSorter = new FileSortImpl(dataSource);
+    long startTime = System.currentTimeMillis();
     File res = fileSorter.sort(data);
+    long endTime = System.currentTimeMillis();
+    System.out.println("Продолжительность:  " + (endTime - startTime));
   }
   
   public static DataSource initDb() throws SQLException {
