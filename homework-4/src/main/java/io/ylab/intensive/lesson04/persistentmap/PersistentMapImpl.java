@@ -29,7 +29,7 @@ public class PersistentMapImpl implements PersistentMap {
     public boolean containsKey(String key) throws SQLException {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(
-                     "SELECT * FROM persistent_map WHERE map_name = ? AND KEY = ?")) {
+                     "SELECT key FROM persistent_map WHERE map_name = ? AND key = ?")) {
             preparedStatement.setString(1, name);
             preparedStatement.setString(2, key);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -43,7 +43,7 @@ public class PersistentMapImpl implements PersistentMap {
         List<String> keys = new ArrayList<>();
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(
-                     "SELECT KEY FROM persistent_map WHERE map_name = ?")) {
+                     "SELECT key FROM persistent_map WHERE map_name = ?")) {
             preparedStatement.setString(1, name);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
@@ -58,7 +58,7 @@ public class PersistentMapImpl implements PersistentMap {
     public String get(String key) throws SQLException {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(
-                     "SELECT value FROM persistent_map WHERE map_name = ? AND KEY = ?")) {
+                     "SELECT value FROM persistent_map WHERE map_name = ? AND key = ?")) {
             preparedStatement.setString(1, name);
             preparedStatement.setString(2, key);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -75,7 +75,7 @@ public class PersistentMapImpl implements PersistentMap {
     public void remove(String key) throws SQLException {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(
-                     "DELETE FROM persistent_map WHERE map_name = ? AND KEY = ?")) {
+                     "DELETE FROM persistent_map WHERE map_name = ? AND key = ?")) {
             preparedStatement.setString(1, name);
             preparedStatement.setString(2, key);
             preparedStatement.executeUpdate();
@@ -87,7 +87,7 @@ public class PersistentMapImpl implements PersistentMap {
         remove(key);
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(
-                     "INSERT INTO persistent_map (map_name, KEY, value) VALUES (?, ?, ?)")) {
+                     "INSERT INTO persistent_map (map_name, key, value) VALUES (?, ?, ?)")) {
             preparedStatement.setString(1, name);
             preparedStatement.setString(2, key);
             preparedStatement.setString(3, value);

@@ -30,12 +30,30 @@ public class PersonApiImpl implements PersonApi {
 
     @Override
     public void deletePerson(Long personId) {
+        if (personId == null) {
+            System.out.println("Код пользователя не должен быть null");
+            return;
+        }
         String message = String.join(";", "DELETE", personId.toString());
         sendToRabbit(message);
     }
 
     @Override
     public void savePerson(Long personId, String firstName, String lastName, String middleName) {
+        if (personId == null) {
+            System.out.println("Код пользователя не должен быть null");
+            return;
+        }
+        if (firstName == null || firstName.isEmpty()) {
+            firstName = " ";
+        }
+        if (lastName == null || lastName.isEmpty()){
+            lastName = " ";
+        }
+        if (middleName == null || middleName.isEmpty()) {
+            middleName = " ";
+        }
+
         String message = String.join(";", "SAVE", personId.toString(), firstName, lastName, middleName);
         sendToRabbit(message);
     }

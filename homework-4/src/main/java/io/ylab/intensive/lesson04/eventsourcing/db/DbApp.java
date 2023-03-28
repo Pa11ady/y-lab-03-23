@@ -12,6 +12,7 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.concurrent.TimeoutException;
 
@@ -63,30 +64,41 @@ public class DbApp {
     }
 
     private static void processingMessage(String message) {
-        String[] splits = message.split(";");
-        if (splits.length == 0) {
+        String[] split = message.split(";");
+        if (split.length == 0) {
             System.out.println("Неверная команда");
             return;
         }
-        String command = splits[0];
+        String command = split[0];
 
-        if ("SAVE".equals(command) && splits.length >= 5) {
-            long id = Long.parseLong(splits[1]);
-            Person person = new Person();
-            person.setId(id);
-            person.setName(splits[2]);
-            person.setLastName(splits[3]);
-            person.setMiddleName(splits[4]);
+        if ("SAVE".equals(command) && split.length >= 5) {
+            Person person = toPerson(split);
             saveToDB(person);
-        } else if ("DELETE".equals(command) && splits.length == 2) {
-            long id = Long.parseLong(splits[1]);
+        } else if ("DELETE".equals(command) && split.length == 2) {
+            long id = Long.parseLong(split[1]);
             deleteFromDB(id);
         } else {
             System.out.println("Неверная команда");
         }
     }
 
+    private static Person toPerson(String[] cols) {
+        long id = Long.parseLong(cols[1]);
+        String name = cols[2].isBlank() ? "" : cols[2];
+        String lastName = cols[3].isBlank() ? "" : cols[3];
+        String middleName = cols[4].isBlank() ? "" : cols[4];
+        return new Person(id, name, lastName, middleName);
+    }
+
     private static void saveToDB(Person person) {
+        if (containsPerson(person.getId())) {
+            updateData(person);
+        } else {
+            insertData(person);
+        }
+    }
+
+    private static void insertData(Person person) {
         final String SQL_INSERT =
                 "INSERT INTO person (person_id, first_name, last_name, middle_name) " +
                         "VALUES(?, ?, ?, ?)";
@@ -102,15 +114,45 @@ public class DbApp {
         }
     }
 
-    private static void deleteFromDB(Long id) {
+    private static void updateData(Person person) {
+        final String SQL_UPDATE =
+                "UPDATE person SET first_name = ?, last_name = ?, middle_name = ? WHERE person_id = ?";
         try (java.sql.Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(
-                     "DELETE FROM person WHERE person_id = ?")) {
-            preparedStatement.setLong(1, id);
+             PreparedStatement preparedStatement = connection.prepareStatement(SQL_UPDATE)) {
+            preparedStatement.setString(1, person.getName());
+            preparedStatement.setString(2, person.getLastName());
+            preparedStatement.setString(3, person.getMiddleName());
+            preparedStatement.setLong(4, person.getId());
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-}
 
+    private static void deleteFromDB(Long personId) {
+        if (!containsPerson(personId)) {
+            System.out.println("Попытка удаления. Пользователь с id=" + personId + " не существует.");
+        }
+        try (java.sql.Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(
+                     "DELETE FROM person WHERE person_id = ?")) {
+            preparedStatement.setLong(1, personId);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static boolean containsPerson(Long personId) {
+        final String SQL_SELECT = "SELECT person_id FROM person WHERE person_id = ?";
+        try (java.sql.Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(SQL_SELECT)) {
+            preparedStatement.setLong(1, personId);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                return resultSet.next();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
