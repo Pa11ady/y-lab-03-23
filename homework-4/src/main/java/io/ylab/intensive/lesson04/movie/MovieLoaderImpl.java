@@ -75,7 +75,7 @@ public class MovieLoaderImpl implements MovieLoader {
                      "awards) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
 
-            for (var movie : movies) {
+            for (Movie movie : movies) {
                 Integer year = movie.getYear();
                 if (year == null) {
                     statement.setNull(1, Types.INTEGER);
