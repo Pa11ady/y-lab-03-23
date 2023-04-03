@@ -7,7 +7,9 @@ import com.rabbitmq.client.ConnectionFactory;
 import io.ylab.intensive.lesson05.DbUtil;
 import org.postgresql.ds.PGSimpleDataSource;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 
+@ComponentScan(basePackages = "io.ylab.intensive.lesson05.eventsourcing.db")
 public class Config {
 
   @Bean
@@ -20,13 +22,13 @@ public class Config {
     dataSource.setPortNumber(5432);
 
     String ddl = ""
-                     + "drop table if exists person;"
-                     + "create if not exists table person (\n"
-                     + "person_id bigint primary key,\n"
-                     + "first_name varchar,\n"
-                     + "last_name varchar,\n"
-                     + "middle_name varchar\n"
-                     + ")";
+            + "drop table if exists person;"
+            + "create table if not exists person (\n"
+            + "person_id bigint primary key,\n"
+            + "first_name varchar,\n"
+            + "last_name varchar,\n"
+            + "middle_name varchar\n"
+            + ")";
     DbUtil.applyDdl(ddl, dataSource);
     
     return dataSource;
